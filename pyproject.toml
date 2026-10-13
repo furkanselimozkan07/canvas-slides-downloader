@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "canvas-slides-downloader"
+dynamic = ["version"]
+description = "Download Google Slides decks embedded in Canvas (or any LMS) pages as PDF, PPTX and PNG."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+keywords = ["canvas", "lms", "google-slides", "pdf", "pptx", "playwright", "students"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Education",
+]
+dependencies = [
+    "playwright>=1.40",
+    "pillow>=10.0",
+    "python-pptx>=0.6.23",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+[project.scripts]
+slides-dl = "slides_downloader.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "slides_downloader.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
