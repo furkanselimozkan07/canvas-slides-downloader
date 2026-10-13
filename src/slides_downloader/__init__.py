@@ -1,3 +1,3 @@
-"""Download embedded Google Slides decks (e.g. from Canvas LMS pages) as PDF, PPTX and PNG."""
+"""Download embedded Google Slides decks (e.g. from Canvas LMS pages) as PDF and PPTX."""
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"

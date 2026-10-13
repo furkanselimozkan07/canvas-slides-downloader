@@ -13,7 +13,7 @@ from slides_downloader.browser import BROWSER_CHOICES
 from slides_downloader.capture import CaptureOptions, capture_deck
 from slides_downloader.discover import find_embedded_decks
 from slides_downloader.errors import CaptureError, SlidesDownloaderError
-from slides_downloader.export import FORMATS, export
+from slides_downloader.export import DEFAULT_FORMATS, FORMATS, export
 from slides_downloader.urls import is_google_slides_url, name_from_url, to_embed_url
 
 log = logging.getLogger("slides_downloader")
@@ -43,7 +43,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="slides-dl",
         description=(
             "Download Google Slides decks embedded in LMS pages (Canvas, Moodle, ...) "
-            "or published Google Slides links as PDF, PPTX and PNG."
+            "or published Google Slides links as PDF and PPTX (PNG images optional)."
         ),
     )
     parser.add_argument("urls", nargs="+", metavar="URL", help="LMS page URL or Google Slides link")
@@ -56,8 +56,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="output folder / file name (single URL only; default: derived from the URL)",
     )
     parser.add_argument(
-        "-f", "--formats", type=parse_formats, default=list(FORMATS),
-        help=f"comma-separated output formats (default: {','.join(FORMATS)})",
+        "-f", "--formats", type=parse_formats, default=list(DEFAULT_FORMATS),
+        help=f"comma-separated output formats: {','.join(FORMATS)} (default: {','.join(DEFAULT_FORMATS)})",
     )
     parser.add_argument(
         "-b", "--browser", choices=BROWSER_CHOICES, default="auto",

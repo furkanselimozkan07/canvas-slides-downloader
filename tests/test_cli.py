@@ -18,7 +18,7 @@ def test_parse_formats_rejects_invalid(value):
 
 def test_parser_defaults():
     args = build_parser().parse_args(["https://example.edu/page"])
-    assert args.formats == ["pdf", "pptx", "png"]
+    assert args.formats == ["pdf", "pptx"]
     assert args.browser == "auto"
     assert args.name is None
 

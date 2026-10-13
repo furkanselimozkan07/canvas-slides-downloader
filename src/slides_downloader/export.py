@@ -11,6 +11,7 @@ from pptx import Presentation
 from pptx.util import Emu
 
 FORMATS = ("pdf", "pptx", "png")
+DEFAULT_FORMATS = ("pdf", "pptx")
 PDF_RESOLUTION = 150
 PPTX_WIDTH = Emu(12192000)  # 13.333 in, PowerPoint's 16:9 default
 _BLANK_LAYOUT = 6

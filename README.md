@@ -6,8 +6,8 @@
 
 Your course puts its lecture slides on a Canvas (or Moodle, or any other LMS) page as an
 **embedded Google Slides viewer**, and there is no download button. This tool saves those
-slides to your computer as **PDF**, **PowerPoint (PPTX)** and **PNG images** so you can
-study offline, print, or annotate them.
+slides to your computer as a **PDF** and a **PowerPoint (PPTX)** file so you can study
+offline, print, or annotate them. Per-slide **PNG images** are available on request.
 
 ```text
 $ slides-dl https://canvas.example.edu/courses/123/pages/lecture-02-slides -o ~/Downloads
@@ -20,7 +20,6 @@ Capturing https://docs.google.com/presentation/d/e/2PACX-.../embed?start=false
 Done: 22 slides
   /home/you/Downloads/lecture-02-slides/lecture-02-slides.pdf
   /home/you/Downloads/lecture-02-slides/lecture-02-slides.pptx
-  /home/you/Downloads/lecture-02-slides (PNG images)
 ```
 
 ## Features
@@ -80,7 +79,7 @@ slides-dl URL [URL ...] [options]
 | --- | --- | --- |
 | `-o, --output-dir DIR` | current directory | Where the output folders are created |
 | `-n, --name NAME` | taken from the URL | Folder/file name (single URL only) |
-| `-f, --formats LIST` | `pdf,pptx,png` | Any comma-separated mix of `pdf`, `pptx`, `png` |
+| `-f, --formats LIST` | `pdf,pptx` | Any comma-separated mix of `pdf`, `pptx`, `png` (one image per slide) |
 | `-b, --browser NAME` | `auto` | `auto`, `chromium`, `chrome` or `msedge` |
 | `--profile-dir DIR` | `~/.slides-downloader/browser-profile` | Browser profile that stores your LMS login |
 | `--login-timeout SEC` | `300` | How long to wait for you to sign in |
@@ -96,6 +95,9 @@ Examples:
 slides-dl -f pdf -o ~/Downloads \
   https://canvas.example.edu/courses/123/pages/lecture-02-slides \
   https://canvas.example.edu/courses/123/pages/lecture-03-slides
+
+# Also save every slide as a separate PNG image
+slides-dl -f pdf,pptx,png <link>
 
 # A published Google Slides link, custom name, extra sharp
 slides-dl "https://docs.google.com/presentation/d/e/2PACX-.../pub" -n Week5 --scale 2
@@ -120,7 +122,7 @@ On Windows (cmd) use `-v "%cd%\output:/output"`.
 ```text
 LMS page URL ──► discover.py ──► Google Slides embed URL(s) ──► capture.py ──► export.py
                  (visible browser,                              (headless,      (PDF, PPTX,
-                  persistent login)                              one shot per    PNG)
+                  persistent login)                              one shot per    PNG on request)
                                                                  slide)
 ```
 
@@ -129,8 +131,8 @@ LMS page URL ──► discover.py ──► Google Slides embed URL(s) ──�
 2. **Capture**: opens each deck headlessly, steps through it with the arrow keys and
    screenshots only the slide area. Animation steps share a slide id, so only the last state
    of each slide is kept. Capture stops once the image no longer changes.
-3. **Export**: writes the screenshots as PNGs, a multi-page PDF, and a PPTX with one
-   full-size image per slide.
+3. **Export**: writes a multi-page PDF and a PPTX with one full-size image per slide
+   (plus one PNG per slide with `-f png`).
 
 The slides are saved as **images**, so the PDF/PPTX text cannot be selected or edited.
 
@@ -139,7 +141,7 @@ src/slides_downloader/
 ├── cli.py        # argument parsing and orchestration
 ├── discover.py   # find embedded decks on an LMS page (handles login)
 ├── capture.py    # step through a deck and screenshot each slide
-├── export.py     # PNG / PDF / PPTX writers
+├── export.py     # PDF / PPTX / PNG writers
 ├── browser.py    # browser launch with Chromium → Chrome → Edge fallback
 ├── urls.py       # pure URL helpers
 └── errors.py     # user-facing exception types
