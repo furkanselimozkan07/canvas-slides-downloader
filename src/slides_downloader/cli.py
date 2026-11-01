@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import sys
 from pathlib import Path
 
 from playwright.sync_api import Playwright, sync_playwright
@@ -13,8 +14,8 @@ from slides_downloader.browser import BROWSER_CHOICES
 from slides_downloader.capture import CaptureOptions, capture_deck
 from slides_downloader.discover import find_embedded_decks
 from slides_downloader.errors import CaptureError, SlidesDownloaderError
-from slides_downloader.export import DEFAULT_FORMATS, FORMATS, export
-from slides_downloader.urls import is_google_slides_url, name_from_url, to_embed_url
+from slides_downloader.export import DEFAULT_FORMATS, FORMATS, export, outputs_exist
+from slides_downloader.urls import is_google_slides_url, name_from_url, parse_url_list, to_embed_url
 
 log = logging.getLogger("slides_downloader")
 
@@ -46,7 +47,15 @@ def build_parser() -> argparse.ArgumentParser:
             "or published Google Slides links as PDF and PPTX (PNG images optional)."
         ),
     )
-    parser.add_argument("urls", nargs="+", metavar="URL", help="LMS page URL or Google Slides link")
+    parser.add_argument("urls", nargs="*", metavar="URL", help="LMS page URL or Google Slides link")
+    parser.add_argument(
+        "-i", "--input-file", type=Path, metavar="FILE",
+        help="text file with one URL per line ('-' reads stdin); blank lines and # comments are ignored",
+    )
+    parser.add_argument(
+        "--skip-existing", action="store_true",
+        help="do not capture a deck again if all requested output files already exist",
+    )
     parser.add_argument(
         "-o", "--output-dir", type=Path, default=Path.cwd(),
         help="where to create the output folders (default: current directory)",
@@ -104,6 +113,10 @@ def download(playwright: Playwright, url: str, args: argparse.Namespace) -> None
     base_name = args.name or name_from_url(url)
     for index, deck in enumerate(decks, 1):
         name = base_name if len(decks) == 1 else f"{base_name}_{index}"
+        out_dir = args.output_dir / name
+        if args.skip_existing and outputs_exist(out_dir, name, args.formats):
+            log.info("Skipping %s (already downloaded in %s)", name, out_dir.resolve())
+            continue
         embed_url = to_embed_url(deck)
         log.info("Capturing %s", embed_url)
         images = capture_deck(playwright, embed_url, options, on_slide=lambda n: log.info("  slide %d", n))
@@ -112,7 +125,6 @@ def download(playwright: Playwright, url: str, args: argparse.Namespace) -> None
                 "No slides were captured. Make sure the deck is published to the web "
                 "or shared with 'anyone with the link'."
             )
-        out_dir = args.output_dir / name
         paths = export(images, out_dir, name, args.formats)
         log.info("Done: %d slides", len(images))
         for path in paths:
@@ -125,6 +137,18 @@ def download(playwright: Playwright, url: str, args: argparse.Namespace) -> None
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.input_file:
+        try:
+            lines = (
+                sys.stdin.read().splitlines()
+                if str(args.input_file) == "-"
+                else args.input_file.read_text(encoding="utf-8-sig").splitlines()
+            )
+        except OSError as exc:
+            parser.error(f"cannot read {args.input_file}: {exc.strerror or exc}")
+        args.urls = list(dict.fromkeys([*args.urls, *parse_url_list(lines)]))
+    if not args.urls:
+        parser.error("provide at least one URL (or use --input-file)")
     if args.name and len(args.urls) > 1:
         parser.error("--name can only be used with a single URL")
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO, format="%(message)s")

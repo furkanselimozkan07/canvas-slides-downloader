@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from urllib.parse import parse_qs, urlparse, urlunparse
 
 GOOGLE_DOCS_HOST = "docs.google.com"
@@ -60,3 +61,17 @@ def name_from_url(url: str, default: str = "slides") -> str:
             if name:
                 return name[:_MAX_NAME_LENGTH]
     return default
+
+
+def parse_url_list(lines: Iterable[str]) -> list[str]:
+    """Extract URLs from the lines of a text file.
+
+    Blank lines and ``#`` comments (whole-line or trailing, after whitespace) are
+    ignored, and duplicates are dropped while keeping the original order.
+    """
+    urls: list[str] = []
+    for line in lines:
+        text = re.split(r"\s#", line.strip(), maxsplit=1)[0].strip()
+        if text and not text.startswith("#") and text not in urls:
+            urls.append(text)
+    return urls

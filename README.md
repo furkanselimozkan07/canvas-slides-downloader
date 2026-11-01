@@ -86,6 +86,8 @@ slides-dl URL [URL ...] [options]
 | `--delay SEC` | `1.2` | Wait after each slide step. Increase it on slow connections |
 | `--scale N` | `1.5` | Screenshot scale. Higher values give sharper images |
 | `--max-steps N` | `600` | Safety limit on slide/animation steps per deck |
+| `-i, --input-file FILE` | | Read URLs from a text file, one per line (`-` for stdin; `#` comments allowed) |
+| `--skip-existing` | | Skip decks whose output files already exist |
 | `-v, --verbose` | | Debug output |
 
 Examples:
@@ -101,6 +103,9 @@ slides-dl -f pdf,pptx,png <link>
 
 # A published Google Slides link, custom name, extra sharp
 slides-dl "https://docs.google.com/presentation/d/e/2PACX-.../pub" -n Week5 --scale 2
+
+# Download from a list (one URL per line), skipping decks you already have
+slides-dl -i lectures.txt --skip-existing -o ~/Courses/CS101
 ```
 
 With `run.bat` you can also pass the same options on the command line:

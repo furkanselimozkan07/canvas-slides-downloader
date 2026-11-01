@@ -53,3 +53,14 @@ def test_drop_consecutive_duplicates():
     a, b = b"a", b"b"
     assert drop_consecutive_duplicates([a, a, b, b, a]) == [a, b, a]
     assert drop_consecutive_duplicates([]) == []
+
+
+def test_outputs_exist(tmp_path, images):
+    from slides_downloader.export import outputs_exist
+
+    out = tmp_path / "deck"
+    assert not outputs_exist(out, "deck", ["pdf"])
+    export(images, out, "deck", ["pdf", "png"])
+    assert outputs_exist(out, "deck", ["pdf"])
+    assert outputs_exist(out, "deck", ["pdf", "png"])
+    assert not outputs_exist(out, "deck", ["pdf", "pptx"])

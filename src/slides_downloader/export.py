@@ -48,6 +48,18 @@ def save_pptx(images: Sequence[bytes], path: Path) -> Path:
     return path
 
 
+def outputs_exist(out_dir: Path, name: str, formats: Iterable[str]) -> bool:
+    """True if every requested format has already been written to ``out_dir``."""
+    for fmt in set(formats):
+        if fmt == "png":
+            found = any(out_dir.glob("slide_*.png"))
+        else:
+            found = (out_dir / f"{name}.{fmt}").is_file()
+        if not found:
+            return False
+    return True
+
+
 def export(images: Sequence[bytes], out_dir: Path, name: str, formats: Iterable[str]) -> list[Path]:
     """Write ``images`` to ``out_dir`` in the requested formats; return the written paths."""
     if not images:

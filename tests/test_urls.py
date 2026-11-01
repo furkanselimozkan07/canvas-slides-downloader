@@ -59,3 +59,17 @@ def test_slide_id(url, expected):
 )
 def test_name_from_url(url, expected):
     assert name_from_url(url) == expected
+
+
+def test_parse_url_list_ignores_comments_blanks_and_duplicates():
+    from slides_downloader.urls import parse_url_list
+
+    lines = [
+        "# week 1",
+        "https://a.edu/p/1   # lecture 1",
+        "",
+        "  https://a.edu/p/2  ",
+        "https://a.edu/p/1",
+        "https://a.edu/p/3#section",
+    ]
+    assert parse_url_list(lines) == ["https://a.edu/p/1", "https://a.edu/p/2", "https://a.edu/p/3#section"]
